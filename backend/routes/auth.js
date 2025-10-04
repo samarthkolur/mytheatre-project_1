@@ -8,7 +8,7 @@ const JWT_SECRET=process.env.JWT_SECRET ||"supersecret";
 
 //signup
 
-router.post("/signup",async(req,res)=>{
+router.post("/auth/signup",async(req,res)=>{
    try {
      const {name,email,password}=req.body;
      const existingUser=await Users.findOne({email});
@@ -28,7 +28,7 @@ router.post("/signup",async(req,res)=>{
 
 });
 
-router.post("/signin",async(req,res)=>{
+router.post("/auth/signin",async(req,res)=>{
     try{
         const {email,password}=req.body;
         const user=await Users.find({email});

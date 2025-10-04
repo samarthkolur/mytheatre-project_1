@@ -13,13 +13,13 @@ export default function page() {
     setLoading1(true);
     setTimeout(() => {
       setLoading1(false);
-      router.push("/signin");
+      router.push("/SignIn");
     }, 1000);
   };
   const handleSignup = () => {
     setLoading(true);
     setTimeout(() => {
-      router.push("/signin");
+      router.push("/SignUp");
     }, 1000);
   };
   return (
