@@ -6,6 +6,8 @@ import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import pkg from "mongodb";
+import jwt from "jsonwebtoken";
+import router from "./routes/auth.js";
 
 const { MongoClient: mongoClient } = pkg;
 const app=express();
@@ -16,6 +18,17 @@ app.use(cors(
         credentials: true,
     }
 ));
+app.use(express.json());
+app.use("/auth",router);
+
+mongoose.connect(process.env.MONGO_URI).then(()=>console.log("MongoDB connected"))
+app.use(session({
+    secret:process.env.SESSION_SECRET || "supersecret",
+    resave:false,
+    saveUninitialized:false,
+    
+}))
+
 async function connectDB(){
     const client = new mongoClient(process.env.MONGO_URI);
     try{
