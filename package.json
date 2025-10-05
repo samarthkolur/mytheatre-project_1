@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "curl": "^0.1.4",
     "mongodb": "^6.20.0"
   }
 }

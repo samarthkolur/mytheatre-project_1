@@ -2,12 +2,32 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { set } from "mongoose";
+import { Alert } from "@/components/ui/alert";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
+
+function showNoUserFoundToast(router: any) {
+  toast.error(
+    <div>
+      <div>No user found with this email.</div>
+    </div>,
+    {
+      duration: 5000,
+      position: "top-center",
+      className: "bg-red-600",
+      style: { backgroundColor: "#dc2626", color: "#fff" },
+    }
+  );
+}
 
 export default function page() {
+  const { setIsAuthenticated } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,62 +48,71 @@ export default function page() {
       if (!res.ok) {
         throw new Error(data.message || "Something went wrong");
       }
-      localStorage.setItem("token", data.token);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", data.token);
+      }
+      setIsAuthenticated(true);
       router.push("/");
     } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
+      if (err.message === "No user found") {
+        setError("NUF");
+        console.log("No user found error caught");
+        showNoUserFoundToast(router);
+      }
     } finally {
       setLoading(false);
     }
   };
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="border-2 border-black rounded-sm max-w-md">
-        <form onSubmit={handleSubmit}>
-          <div className="border-b-2 border-black">
-            <h1 className="text-center font-bold  p-3">Sign In</h1>
-          </div>
-          <div className="flex flex-col gap-4 p-5">
-            <div>
-              <h1 className="text-sm">Email ID</h1>
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+    <div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="border-2 border-black rounded-sm max-w-md m-3">
+          <form onSubmit={handleSubmit}>
+            <div className="border-b-2 border-black">
+              <h1 className="text-center font-bold  p-3">Sign In</h1>
             </div>
-            <div>
-              <h1 className="text-sm">Password</h1>
-              <Input
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button
-              type="submit"
-              className="bg-black text-white"
-              disabled={loading}
-            >
-              {loading ? <Spinner /> : "Sign In"}
-            </Button>
+            <div className="flex flex-col gap-4 p-5">
+              <div>
+                <h1 className="text-sm">Email ID</h1>
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <h1 className="text-sm">Password</h1>
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="bg-black text-white"
+                disabled={loading}
+              >
+                {loading ? <Spinner /> : "Sign In"}
+              </Button>
 
-            <p className="text-center text-sm">
-              if you dont have an account{" "}
-              <span>
-                <a href="/SignUp" className="text-blue-500">
-                  click here
-                </a>
-              </span>
-            </p>
-          </div>
-        </form>
+              <p className="text-center text-sm">
+                if you dont have an account{" "}
+                <span>
+                  <a href="/SignUp" className="text-blue-500">
+                    click here
+                  </a>
+                </span>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
+      <Toaster />
     </div>
   );
 }

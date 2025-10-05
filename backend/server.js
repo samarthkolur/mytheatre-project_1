@@ -29,11 +29,12 @@ app.use(session({
     
 }))
 
-async function connectDB(){
+async function getAllUsers(){
     const client = new mongoClient(process.env.MONGO_URI);
     try{
+        await client.connect();
         const db= client.db("mytheatre_db");
-        const user=db.collection("Users");
+        const user=await db.collection("Users").find({}).toArray();
         console.log("Connected to MongoDB");
         return user;
     } finally {
@@ -42,8 +43,14 @@ async function connectDB(){
 }
 
 app.get("/Users", async(req,res)=>{
-    const users=await connectDB();
+    try{
+    const users=await getAllUsers();
     res.json(users);
+    } catch(error){
+        console.error("Error fetching users:", error);
+        res.status(500).json({message:"Server error"});
+    }
+    
 });
 app.listen(process.env.PORT,()=>{
     console.log(`Server is running on port ${process.env.PORT}`);
